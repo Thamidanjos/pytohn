@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatPDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        h1, h3, h2 {
+            color: #333; 
+        }
+        #questionInput {
+            width: 80%;
+            padding: 15px;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+        }
+        #sendButton {
+            font-size: 18px;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #sendButton:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+        }
+        .header-image {
+            width: 20%;
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <div class="image-container">
+            <img class="header-image" src="https://governanca.cfa.org.br/wp-content/uploads/2024/07/Black-White-Minimalist-Letter-MC-Logo-2.png" alt="Header Image" />
+        </div>
+        <input id="questionInput" type="text" placeholder="Digite aqui sua pergunta" />
+        <button id="sendButton" onclick="handleQuestion()">Enviar</button>
+        <h6>ChatPDF pode cometer erros. Considere verificar informações importantes.</h6>
+    </center>
+    <div id="output"></div>
+
+    <script>
+        async function handleQuestion() {
+            const question = document.getElementById('questionInput').value;
+            if (question.trim() !== '') {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+                const data = await response.json();
+                displayResponse(data.answer);
+            }
+        }
+
+        function displayResponse(answer) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = `<h3>Resposta:</h3><p>${answer}</p>`;
+        }
+    </script>
+</body>
+</html>
