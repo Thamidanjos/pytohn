@@ -10,9 +10,6 @@
             margin: 20px;
             text-align: center;
         }
-        h1, h3, h2 {
-            color: #333; 
-        }
         #questionInput {
             width: 80%;
             padding: 15px;
@@ -37,44 +34,47 @@
         #output {
             margin-top: 20px;
         }
-        .header-image {
-            width: 20%;
-            max-width: 200px;
-            height: auto;
-        }
     </style>
 </head>
 <body>
-    <center>
-        <div class="image-container">
-            <img class="header-image" src="https://governanca.cfa.org.br/wp-content/uploads/2024/07/Black-White-Minimalist-Letter-MC-Logo-2.png" alt="Header Image" />
-        </div>
-        <input id="questionInput" type="text" placeholder="Digite aqui sua pergunta" />
-        <button id="sendButton" onclick="handleQuestion()">Enviar</button>
-        <h6>ChatPDF pode cometer erros. Considere verificar informações importantes.</h6>
-    </center>
+    <h1>ChatPDF</h1>
+    <input id="questionInput" type="text" placeholder="Digite aqui sua pergunta" />
+    <button id="sendButton" onclick="handleQuestion()">Enviar</button>
     <div id="output"></div>
 
     <script>
-        async function handleQuestion() {
-            const question = document.getElementById('questionInput').value;
-            if (question.trim() !== '') {
-                const response = await fetch('/ask', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ question: question })
-                });
-                const data = await response.json();
-                displayResponse(data.answer);
-            }
-        }
+       async function handleQuestion() {
+    const question = document.getElementById('questionInput').value;
+    if (question.trim() !== '') {
+        const payload = {
+            question: question,
+            pdf_url: file_path  = 'https://raw.githubusercontent.com/Thamidanjos/Base_Resolucoes_/blob/main/Resolucoes_Unificadas%20(1)TESTE.pdf'// URL do PDF que você deseja processar
+        };
 
-        function displayResponse(answer) {
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = `<h3>Resposta:</h3><p>${answer}</p>`;
-        }
+        const response = await fetch('http://localhost:5000/ask', {  // Endereço do servidor Flask
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        displayResponse(data.answer);
+    } else {
+        document.getElementById('output').innerHTML = 'Por favor, insira uma pergunta.';
+    }
+}
+function displayResponse(answer) {
+    const outputDiv = document.getElementById('output');
+    outputDiv.innerHTML = `
+        <h3>Resposta:</h3>
+        <p>${answer}</p>
+        <br>
+        <a href="${file_path}" download="Base_Resolucoes_IA.pdf">Baixar PDF</a>
+    `;
+}
+
     </script>
 </body>
 </html>
