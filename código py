@@ -1,0 +1,51 @@
+from flask import Flask, request, jsonify, render_template_string
+import PyPDF2
+import requests
+
+app = Flask(__name__)
+
+# Função para baixar e salvar o PDF localmente
+def download_pdf(pdf_url, local_path):
+    response = requests.get(pdf_url)
+    with open(local_path, 'wb') as f:
+        f.write(response.content)
+
+# Função para extrair texto do PDF
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        for page in reader.pages:
+            text += page.extract_text()
+    return text
+
+# Baixar o PDF e salvar localmente
+pdf_url = 'https://governanca.cfa.org.br/wp-content/uploads/2024/10/saida_pdf_unificado.pdf'
+local_pdf_path = 'resolucoes_unificadas.pdf'
+download_pdf(pdf_url, local_pdf_path)
+
+# Extrair o texto do PDF
+pdf_text = extract_text_from_pdf(local_pdf_path)
+
+# Rota para servir o arquivo HTML
+@app.route('/')
+def index():
+    html_content = open("index.html").read()  # Lê o conteúdo do arquivo HTML
+    return render_template_string(html_content)
+
+# Rota para lidar com as perguntas
+@app.route('/ask', methods=['POST'])
+def ask():
+    data = request.get_json()
+    question = data.get('question', '').strip()
+    
+    # Verifica se a pergunta está no texto do PDF
+    if question.lower() in pdf_text.lower():
+        answer = "A informação está contida no PDF."
+    else:
+        answer = "Desculpe, não consegui encontrar uma resposta no PDF."
+
+    return jsonify({'answer': answer})
+
+if __name__ == '__main__':
+    app.run(debug=True)
